@@ -21,6 +21,7 @@ export class BaseTask extends EventEmitter {
   public proc: ChildProcess; // 当前进程
   private subscribeInitFlag: boolean = false;
   private isCancel: boolean = false;
+  protected progress: number = 0; // 进度，只有 dev 和 build 需要
 
   protected pkgPath: string = '';
   protected isBigfishProject: boolean = false;
@@ -61,13 +62,14 @@ export class BaseTask extends EventEmitter {
       });
     });
 
-    this.on(TaskEventType.STATE_EVENT, () => {
+    this.on(TaskEventType.STATE_EVENT, detail => {
       collector({
         cwd: this.cwd,
         type: 'org.umi.task.state',
         payload: {
+          cwd: this.cwd,
           taskType: this.type,
-          detail: this.getDetail(),
+          detail: detail || this.getDetail(),
         },
       });
     });
@@ -81,9 +83,13 @@ export class BaseTask extends EventEmitter {
     return this.log;
   }
 
-  public async run(_: any = {}) {
+  public async getStats(_: string) {
+    return null;
+  }
+
+  public async run(args = {}, envs: any = {}) {
     this.state = TaskState.ING;
-    this.emit(TaskEventType.STATE_EVENT, this.state);
+    this.emit(TaskEventType.STATE_EVENT, this.getDetail());
   }
 
   public async cancel() {
@@ -99,13 +105,14 @@ export class BaseTask extends EventEmitter {
 
     this.state = TaskState.INIT;
     this.isCancel = true;
-    proc.kill('SIGINT');
+    proc.kill('SIGTERM');
   }
 
   public getDetail(): ITaskDetail {
     return {
       state: this.state,
       type: this.type,
+      progress: this.progress,
     };
   }
 
@@ -131,12 +138,30 @@ export class BaseTask extends EventEmitter {
         }
       }
       // 触发事件
-      this.emit(TaskEventType.STATE_EVENT, this.state);
+      this.emit(TaskEventType.STATE_EVENT, this.getDetail());
     });
 
-    // TODO: 这儿缺少信号
     process.on('exit', () => {
-      proc.kill();
+      proc.kill('SIGTERM');
     });
+  }
+
+  protected updateProgress(msg) {
+    if (!msg.progress) {
+      return;
+    }
+    const { percentage } = msg.progress;
+    const current = Number(Number(percentage).toFixed(2));
+    if (current <= this.progress) {
+      return;
+    }
+    this.progress = current;
+    this.emit(TaskEventType.STATE_EVENT, this.getDetail());
+  }
+
+  protected error(msg: string) {
+    const err = new Error(msg);
+    err.name = 'BaseTaskError';
+    throw err;
   }
 }

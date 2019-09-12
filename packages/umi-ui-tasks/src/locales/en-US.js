@@ -21,6 +21,7 @@ export default {
   'org.umi.ui.tasks.dev.start': 'START',
   'org.umi.ui.tasks.dev.cancel': 'STOP',
   'org.umi.ui.tasks.dev.state.starting': 'Starting...',
+  'org.umi.ui.tasks.dev.state.starting.error': 'Compile error...',
   'org.umi.ui.tasks.dev.state.success': 'Started at: ',
   'org.umi.ui.tasks.dev.state.fail': 'Started failed',
   'org.umi.ui.tasks.envs': 'ENVS',

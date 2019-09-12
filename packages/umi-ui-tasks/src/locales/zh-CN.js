@@ -21,6 +21,7 @@ export default {
   'org.umi.ui.tasks.dev.start': '启动',
   'org.umi.ui.tasks.dev.cancel': '停止',
   'org.umi.ui.tasks.dev.state.starting': '启动中...',
+  'org.umi.ui.tasks.dev.state.starting.error': '编译失败...',
   'org.umi.ui.tasks.dev.state.success': '启动于：',
   'org.umi.ui.tasks.dev.state.fail': '启动失败',
   'org.umi.ui.tasks.envs': '环境变量',
