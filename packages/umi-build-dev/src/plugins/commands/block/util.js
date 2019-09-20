@@ -16,10 +16,9 @@ import {
 } from './getBlockGenerator';
 
 /**
- *
+ * 转化数组为对象
  * @param {*} templateTmpDirPath
  */
-
 const depsArrayToObject = loc =>
   loc
     .map(dep => {
